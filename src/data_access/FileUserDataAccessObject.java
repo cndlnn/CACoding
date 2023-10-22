@@ -2,16 +2,18 @@ package data_access;
 
 import entity.User;
 import entity.UserFactory;
+import use_case.clear_users.ClearUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class FileUserDataAccessObject implements SignupUserDataAccessInterface, LoginUserDataAccessInterface {
+public class FileUserDataAccessObject implements SignupUserDataAccessInterface, LoginUserDataAccessInterface, ClearUserDataAccessInterface {
 
     private final File csvFile;
 
@@ -96,4 +98,30 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface, 
         return accounts.containsKey(identifier);
     }
 
+    public ArrayList<String> clearAll() {
+        java.util.ArrayList<String> deletedUsers = new ArrayList<String>();
+        BufferedReader reader;
+        BufferedWriter writer;
+        try {
+            reader = new BufferedReader(new FileReader(csvFile));
+            String line;
+            line = reader.readLine();
+
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                System.out.println(values[0]);
+                deletedUsers.add(values[0]);
+            }
+            reader.close();
+
+
+            writer = new BufferedWriter(new FileWriter(csvFile));
+            writer.write("username,password,creation_time\n");
+            writer.close();
+
+        } catch (IOException e) {
+            new RuntimeException(e);
+        }
+        return deletedUsers;
+    }
 }
